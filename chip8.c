@@ -2,18 +2,27 @@
 
 void initialize(void) {
     // Initialize registers and memory once
-    unsigned short opcode;
-    unsigned char memory[4096];
-    unsigned char V[16];
-    unsigned short I;
-    unsigned short pc;
-    unsigned char gfx[64 * 32];
-    unsigned char delay_timer;
-    unsigned char sound_timer;
-    unsigned short stack[16];
-    unsigned short sp;
-    unsigned char key[16];
+    opcode = 0;
+    I = 0;
+    pc = 0x200;
+    sp = 0;
+
+    // Clear display	
+    // Clear stack
+    // Clear registers V0-VF
+    // Clear memory
+
+    // Load fontset
+    for(int i = 0; i < 80; ++i) {
+      memory[i] = chip8_fontset[i];	
+    }
+
+    // Reset Timers
+    delay_timer = 0;
+    sound_timer = 0;
   }
+
+  
   
 void emulateCycle() {
   // Fetch Opcode
