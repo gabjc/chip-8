@@ -1,5 +1,6 @@
 #include "chip8.h"
 #include "stdint.h"
+#include <stdio.h>
 
 void initialize(void) {
     // Initialize registers and memory once
@@ -23,8 +24,10 @@ void initialize(void) {
     sound_timer = 0;
   }
 
-void loadGame(char game) {
+void loadGame(char game[]) {
   // Have to use fopen in binary mode to fill the memory location at 0x200 == 512
+  FILE *file = fopen(game, "rb");
+
   for(int i = 0; i < bufferSize; ++i) {
     memory[i + 512] = buffer[i];
   }
@@ -33,7 +36,7 @@ void loadGame(char game) {
   
 void emulateCycle() {
   // Fetch Opcode
-  fetchOpcode(memory, pc);
+  fetchOpcode();
 
   // Decode Opcode
   decodeOpcode(opcode);
@@ -43,23 +46,23 @@ void emulateCycle() {
 }
 
 
-unsigned short fetchOpcode(unsigned char *memory[4096], unsigned short *pc) {
-  opcode = *memory[*pc] << 8 | *memory[*pc + 1];
+unsigned short fetchOpcode() {
+  opcode = memory[pc] << 8 | memory[pc + 1];
   return opcode;
 }
 
-void decodeOpcode(unsigned short *opcode) {
-  switch(*opcode & 0xF000) {
+void decodeOpcode() {
+  switch(opcode & 0xF000) {
     
     case 0xA000: // ANNN: Sets I to the address NNN
       // Execute opcode
-      I = *opcode & 0x0FFF;
+      I = opcode & 0x0FFF;
       pc += 2;
     break;
-    
+
 
     case 0x0000:
-    switch(*opcode & 0x000F) {
+    switch(opcode & 0x000F) {
       case 0x0000: // 0x00E0: Clears the screen        
         // Execute opcode
       break;
