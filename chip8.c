@@ -53,26 +53,57 @@ unsigned short fetchOpcode() {
 
 void decodeOpcode() {
   switch(opcode & 0xF000) {
-    
-    case 0xA000: // ANNN: Sets I to the address NNN
+    // ANNN: Sets I to the address NNN
+    case 0xA000: 
       // Execute opcode
       I = opcode & 0x0FFF;
       pc += 2;
     break;
+    
+    // 2NNN
+    case 0x2000:
+      stack[sp] = pc;
+      ++sp;
+      pc = opcode & 0x0FFF;
+    break;
+    
+    //8XY4
+    case 0x0004: 
+      if(V[(opcode & 0x00F0) >> 4] > (0xFF - V[(opcode & 0x0F00) >> 8])) {
+        V[0xF] = 1; // carry
+      }
+      else {
+        V[0xF] = 0;
+      }
+      V[(opcode & 0x0F00) >> 8] += V[(opcode & 0x00F0) >> 4];
+      pc += 2;          
+    break;
+    
+    // FX33
+    case 0x0033: 
+      memory[I] = V[(opcode & 0x0F00) >> 8] / 100;
+      memory[I + 1] = (V[(opcode & 0x0F00) >> 8 / 10] % 10);
+      memory[I + 2] = (V[(opcode & 0x0F00) >> 8] % 100) % 10;
+      pc += 2;
+    break;
 
-
-    case 0x0000:
-    switch(opcode & 0x000F) {
-      case 0x0000: // 0x00E0: Clears the screen        
-        // Execute opcode
+    
+    switch(opcode & 0xF000) {    
+      case 0x0000:
+        switch(opcode & 0x000F)
+        {
+          case 0x0000: // 0x00E0: Clears the screen        
+            // Execute opcode
+          break;
+     
+          case 0x000E: // 0x00EE: Returns from subroutine          
+            // Execute opcode
+          break;
+     
+          default:
+            printf ("Unknown opcode [0x0000]: 0x%X\n", opcode);          
+        }
       break;
- 
-      case 0x000E: // 0x00EE: Returns from subroutine          
-        // Execute opcode
-      break;
- 
-      default:
-        printf ("Unknown opcode [0x0000]: 0x%X\n", opcode);          
     }
   break;
   }
