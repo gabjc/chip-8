@@ -53,13 +53,28 @@ unsigned short fetchOpcode() {
 
 void decodeOpcode() {
   switch(opcode & 0xF000) {
-    // ANNN: Sets I to the address NNN
-    case 0xA000: 
-      // Execute opcode
-      I = opcode & 0x0FFF;
-      pc += 2;
+    case 0x0000:
+      switch(opcode & 0x00FF) {    
+        case 0x00E0:
+
+        break;
+  
+        case 0x00EE: // 0x00EE: Returns from subroutine          
+          // Execute opcode
+          return;
+        break;
+      
+        default:
+          printf ("Unknown opcode [0x0000]: 0x%X\n", opcode);          
+      }
     break;
+
     
+    // 1NNN
+    case 0x1000:
+      
+    break;
+
     // 2NNN
     case 0x2000:
       stack[sp] = pc;
@@ -67,16 +82,106 @@ void decodeOpcode() {
       pc = opcode & 0x0FFF;
     break;
     
-    //8XY4
-    case 0x0004: 
-      if(V[(opcode & 0x00F0) >> 4] > (0xFF - V[(opcode & 0x0F00) >> 8])) {
-        V[0xF] = 1; // carry
-      }
-      else {
-        V[0xF] = 0;
-      }
-      V[(opcode & 0x0F00) >> 8] += V[(opcode & 0x00F0) >> 4];
-      pc += 2;          
+    // 3XNN
+    case 0x3000:
+
+    break;
+    
+    // 4XNN
+    case 0x4000:
+
+    break;
+
+    // 5XY0
+    case 0x5000:
+
+    break;
+
+    // 6XNN
+    case 0x6000:
+
+    break;
+
+    //7XNN
+    case 0x7000:
+
+    break;
+
+    // 8XYN
+    case 0x8000:
+      switch (opcode & 0x000F) {
+        // 8XY0
+        case 0x0000: 
+
+        break;
+
+        // 8XY1
+        case 0x0001: 
+
+        break;
+        
+        // BXY2
+        case 0x0002:
+
+        break;
+        
+        // BXY3
+        case 0x0003:
+
+        break;
+
+        // 8XY4
+        case 0x0004: 
+          if(V[(opcode & 0x00F0) >> 4] > (0xFF - V[(opcode & 0x0F00) >> 8])) {
+            V[0xF] = 1; // carry
+          }
+          else {
+            V[0xF] = 0;
+          }
+          V[(opcode & 0x0F00) >> 8] += V[(opcode & 0x00F0) >> 4];
+          pc += 2;          
+        break;
+        
+        // 8XY5
+        case 0x0005: 
+          //figure out "underflow"
+          if(V[(opcode & 0x00F0) >> 4] > (0xFF - V[(opcode & 0x0F00) >> 8])) {
+            V[0xF] = 0; // carry
+          }
+          else {
+            V[0xF] = 1;
+          }
+          V[(opcode & 0x0F00) >> 8] += V[(opcode & 0x00F0) >> 4];
+          pc += 2;          
+        break;
+        
+        // BXY6
+        case 0x0006:
+
+        break;
+
+        // BXY7
+        case 0x0007:
+
+        break;
+
+        // BXYE
+        case 0x000E:
+
+        break;
+    }
+    break;
+    
+    // 9XY0
+    case 0x9000:
+
+    break;
+  
+    // ANNN: Sets I to the address NNN
+    case 0xA000: 
+      // Execute opcode
+      I = opcode & 0x0FFF;
+      pc += 2;
     break;
     
     // FX33
@@ -86,34 +191,9 @@ void decodeOpcode() {
       memory[I + 2] = (V[(opcode & 0x0F00) >> 8] % 100) % 10;
       pc += 2;
     break;
-
-    
-    switch(opcode & 0xF000) {    
-      case 0x0000:
-        switch(opcode & 0x000F)
-        {
-          case 0x0000: // 0x00E0: Clears the screen        
-            // Execute opcode
-          break;
-     
-          case 0x000E: // 0x00EE: Returns from subroutine          
-            // Execute opcode
-          break;
-     
-          default:
-            printf ("Unknown opcode [0x0000]: 0x%X\n", opcode);          
-        }
-      break;
-    }
   break;
   }
 }
-
-
-void executeOpcode() {
-
-}
-
 
 void updateTimers() {
   if (delay_timer > 0) {
