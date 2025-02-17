@@ -52,6 +52,10 @@ unsigned short fetchOpcode() {
 }
 
 void decodeOpcode() {
+  unsigned short x = (opcode & 0x0F00) >> 8;
+  unsigned short y = (opcode & 0x00F0) >> 4;
+
+
   switch(opcode & 0xF000) {
     case 0x0000:
       switch(opcode & 0x00FF) {    
@@ -72,7 +76,9 @@ void decodeOpcode() {
     
     // 1NNN
     case 0x1000:
-      
+      // stack[sp] = pc;
+      // ++sp;
+      pc = opcode & 0x0FFF;
     break;
 
     // 2NNN
@@ -84,27 +90,38 @@ void decodeOpcode() {
     
     // 3XNN
     case 0x3000:
-
+      if (V[x] == (opcode & 0x00FF)) {
+        pc += 2;
+      }
+      pc += 2;
     break;
     
     // 4XNN
     case 0x4000:
-
+      if (V[x] != (opcode & 0x00FF)) {
+        pc += 2;
+      }
+      pc += 2;
     break;
 
     // 5XY0
     case 0x5000:
-
+      if (V[x] == V[y]) {
+        pc += 2;
+      }
+      pc += 2;
     break;
 
     // 6XNN
     case 0x6000:
-
+      V[x] = opcode & 0x00FF;
+      pc += 2;
     break;
 
     //7XNN
     case 0x7000:
-
+      V[x] += opcode & 0x00FF;
+      pc += 2;
     break;
 
     // 8XYN
