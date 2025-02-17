@@ -129,46 +129,51 @@ void decodeOpcode() {
       switch (opcode & 0x000F) {
         // 8XY0
         case 0x0000: 
-
+          V[x] = V[y];
+          pc += 2;
         break;
 
         // 8XY1
         case 0x0001: 
-
+          V[x] = V[x] | V[y];
+          pc += 2;
         break;
         
         // BXY2
         case 0x0002:
-
+          V[x] = V[x] & V[y];
+          pc += 2;
         break;
         
         // BXY3
         case 0x0003:
-
+          V[x] = V[x] ^ V[y];
+          pc += 2;
         break;
 
         // 8XY4
         case 0x0004: 
-          if(V[(opcode & 0x00F0) >> 4] > (0xFF - V[(opcode & 0x0F00) >> 8])) {
+          // Overflow
+          if(V[x] + V[y] > 0xFF) {
             V[0xF] = 1; // carry
           }
           else {
             V[0xF] = 0;
           }
-          V[(opcode & 0x0F00) >> 8] += V[(opcode & 0x00F0) >> 4];
+          V[x] += V[y];
           pc += 2;          
         break;
         
         // 8XY5
         case 0x0005: 
           //figure out "underflow"
-          if(V[(opcode & 0x00F0) >> 4] > (0xFF - V[(opcode & 0x0F00) >> 8])) {
+          if(V[x] > V[y]) {
             V[0xF] = 0; // carry
           }
           else {
             V[0xF] = 1;
           }
-          V[(opcode & 0x0F00) >> 8] += V[(opcode & 0x00F0) >> 4];
+          V[x] -= V[y];
           pc += 2;          
         break;
         
