@@ -139,13 +139,13 @@ void decodeOpcode() {
           pc += 2;
         break;
         
-        // BXY2
+        // 8XY2
         case 0x0002:
           V[x] = V[x] & V[y];
           pc += 2;
         break;
         
-        // BXY3
+        // 8XY3
         case 0x0003:
           V[x] = V[x] ^ V[y];
           pc += 2;
@@ -177,26 +177,42 @@ void decodeOpcode() {
           pc += 2;          
         break;
         
-        // BXY6
+        // 8XY6
         case 0x0006:
+          V[0xF] = V[x] & 0x1;
+          V[x] = V[x] >> 1;
 
+          pc += 2;
         break;
 
-        // BXY7
+        // 8XY7
         case 0x0007:
+          if (V[x] < V[y]) {
+            V[0xF] = 0;
+          }
+          else {
+            V[0xF] = 1;
+          }
 
+          V[x] = V[y] - V[x];
+          pc += 2;
         break;
 
-        // BXYE
+        // 8XYE (READ MORE ON THIS ONE)
         case 0x000E:
-
+          V[0xF] = (V[x] >> 7) & 0x1;
+          V[x] = V[x] << 1;
+          pc += 2;
         break;
     }
     break;
     
     // 9XY0
     case 0x9000:
-
+      if (V[x] != V[y]) {
+        pc += 2;
+      }
+      pc += 2;
     break;
   
     // ANNN: Sets I to the address NNN
