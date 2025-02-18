@@ -1,6 +1,9 @@
 #include "chip8.h"
 #include "stdint.h"
+#include <time.h>
+#include <stdlib.h>
 #include <stdio.h>
+
 
 void initialize(void) {
     // Initialize registers and memory once
@@ -60,18 +63,18 @@ void decodeOpcode() {
     case 0x0000:
       switch(opcode & 0x00FF) {    
         case 0x00E0:
-
-        break;
+          
+          break;
   
         case 0x00EE: // 0x00EE: Returns from subroutine          
           // Execute opcode
           return;
-        break;
+          break;
       
         default:
           printf ("Unknown opcode [0x0000]: 0x%X\n", opcode);          
       }
-    break;
+      break;
 
     
     // 1NNN
@@ -79,14 +82,14 @@ void decodeOpcode() {
       // stack[sp] = pc;
       // ++sp;
       pc = opcode & 0x0FFF;
-    break;
+      break;
 
     // 2NNN
     case 0x2000:
       stack[sp] = pc;
       ++sp;
       pc = opcode & 0x0FFF;
-    break;
+      break;
     
     // 3XNN
     case 0x3000:
@@ -94,7 +97,7 @@ void decodeOpcode() {
         pc += 2;
       }
       pc += 2;
-    break;
+      break;
     
     // 4XNN
     case 0x4000:
@@ -102,7 +105,7 @@ void decodeOpcode() {
         pc += 2;
       }
       pc += 2;
-    break;
+      break;
 
     // 5XY0
     case 0x5000:
@@ -110,19 +113,19 @@ void decodeOpcode() {
         pc += 2;
       }
       pc += 2;
-    break;
+      break;
 
     // 6XNN
     case 0x6000:
       V[x] = opcode & 0x00FF;
       pc += 2;
-    break;
+      break;
 
     //7XNN
     case 0x7000:
       V[x] += opcode & 0x00FF;
       pc += 2;
-    break;
+      break;
 
     // 8XYN
     case 0x8000:
@@ -131,25 +134,25 @@ void decodeOpcode() {
         case 0x0000: 
           V[x] = V[y];
           pc += 2;
-        break;
+          break;
 
         // 8XY1
         case 0x0001: 
           V[x] = V[x] | V[y];
           pc += 2;
-        break;
+          break;
         
         // 8XY2
         case 0x0002:
           V[x] = V[x] & V[y];
           pc += 2;
-        break;
+          break;
         
         // 8XY3
         case 0x0003:
           V[x] = V[x] ^ V[y];
           pc += 2;
-        break;
+          break;
 
         // 8XY4
         case 0x0004: 
@@ -162,7 +165,7 @@ void decodeOpcode() {
           }
           V[x] += V[y];
           pc += 2;          
-        break;
+          break;
         
         // 8XY5
         case 0x0005: 
@@ -175,7 +178,7 @@ void decodeOpcode() {
           }
           V[x] -= V[y];
           pc += 2;          
-        break;
+          break;
         
         // 8XY6
         case 0x0006:
@@ -183,7 +186,7 @@ void decodeOpcode() {
           V[x] = V[x] >> 1;
 
           pc += 2;
-        break;
+          break;
 
         // 8XY7
         case 0x0007:
@@ -196,16 +199,16 @@ void decodeOpcode() {
 
           V[x] = V[y] - V[x];
           pc += 2;
-        break;
+          break;
 
         // 8XYE (READ MORE ON THIS ONE)
         case 0x000E:
           V[0xF] = (V[x] >> 7) & 0x1;
           V[x] = V[x] << 1;
           pc += 2;
-        break;
+          break;
     }
-    break;
+      break;
     
     // 9XY0
     case 0x9000:
@@ -213,23 +216,63 @@ void decodeOpcode() {
         pc += 2;
       }
       pc += 2;
-    break;
+      break;
   
     // ANNN: Sets I to the address NNN
     case 0xA000: 
       // Execute opcode
       I = opcode & 0x0FFF;
       pc += 2;
-    break;
+      break;
+
+    // BNNN
+    case 0xB000:
+      pc = (opcode & 0x0FFF) + V[0];
+      break;
+
+    // CXNN
+    case 0xC000:
+      srand(time(NULL));
+      V[x] = (rand() % 256) & (opcode & 0x00FF);
+      pc += 2;
+      break;
     
+    //DXYN
+    case 0xD000:
+    
+      break;
+
+    
+    // EX9E
+
+    // EXA1
+
+    // FX07
+    
+    // FX0A
+
+    // FX15
+
+    // FX18
+
+    // FX1E
+
+    // FX29
+
     // FX33
     case 0x0033: 
       memory[I] = V[(opcode & 0x0F00) >> 8] / 100;
       memory[I + 1] = (V[(opcode & 0x0F00) >> 8 / 10] % 10);
       memory[I + 2] = (V[(opcode & 0x0F00) >> 8] % 100) % 10;
       pc += 2;
+      break;
+    
+    // FX55
+
+    // FX65
+
+
     break;
-  break;
   }
 }
 
