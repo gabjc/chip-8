@@ -38,6 +38,8 @@ void loadGame(char game[]) {
 }
   
 void emulateCycle() {
+  drawFlag = 0;
+  soundFlag = 0;
   // Fetch Opcode
   fetchOpcode();
 
@@ -238,7 +240,28 @@ void decodeOpcode() {
       break;
     
     //DXYN
-    case 0xD000:
+    case 0xD000: 
+      unsigned short x = V[x];
+      unsigned short y = V[y];
+      unsigned short height = opcode & 0x000F;
+      unsigned short pixel;
+
+      V[0xF] = 0;
+      for (int yline = 0; yline < height; yline++) {
+        pixel = memory[I + yline];
+        for (int xline = 0; xline < 0; xline++) {
+          if ((pixel & (0x80 >> xline)) != 0) {
+            if (gfx[(x + xline + ((y + yline) * 64))] == 1) {
+              V[0xF] = 1;
+            }
+            gfx[x + xline + ((y + yline) * 64)] ^= 1;
+          }
+        }
+      }
+
+      drawFlag = 1;
+      pc += 2;
+
     
       break;
 
@@ -343,6 +366,7 @@ void updateTimers() {
   if (sound_timer > 0) {
     if (sound_timer == 1) {
       printf("BEEP!\n");
+      soundFlag = 1;
     }
     --sound_timer;
   }

@@ -36,6 +36,8 @@ unsigned char sound_timer;
 unsigned short stack[16];
 unsigned short sp;
 unsigned char key[16];
+unsigned char drawFlag = 0;
+unsigned char soundFlag = 0;
 
 
 #endif // CHIP8_H
