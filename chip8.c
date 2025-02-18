@@ -242,36 +242,95 @@ void decodeOpcode() {
     
       break;
 
-    
-    // EX9E
-
-    // EXA1
-
-    // FX07
-    
-    // FX0A
-
-    // FX15
-
-    // FX18
-
-    // FX1E
-
-    // FX29
-
-    // FX33
-    case 0x0033: 
-      memory[I] = V[(opcode & 0x0F00) >> 8] / 100;
-      memory[I + 1] = (V[(opcode & 0x0F00) >> 8 / 10] % 10);
-      memory[I + 2] = (V[(opcode & 0x0F00) >> 8] % 100) % 10;
-      pc += 2;
+    case 0xE000:
+      switch(opcode & 0x00FF) {
+        // EX9E
+        case 0x009E:
+          if (key[V[x]]) {
+            pc += 2;
+          }
+          pc += 2;
+        break;
+      
+        // EXA1
+        case 0x00A1:
+          if (!key[V[x]]) {
+            pc += 2;
+          }
+          pc += 2;
+          break;
+  
+      }
       break;
     
-    // FX55
+    case 0xF000:
+      switch(opcode & 0x00FF){
+        // FX07
+        case 0x0007:
+          V[x] = delay_timer;
+          pc += 2;
+          break;
 
-    // FX65
+        // FX0A
+        case 0x000A:
+          for (int i = 0; i < 16; i++) {
+            if (key[i]) {
+              V[x] = i;
+              pc += 2;
+              break;
+            }
+          }
+          break;
 
+        // FX15
+        case 0x0015:
+          delay_timer = V[x];
+          pc += 2;
+          break;
 
+        // FX18
+        case 0x0018:
+          sound_timer = V[x];
+          pc += 2;
+          break;
+        
+        // FX1E
+        case 0x001E:
+          I += V[x];
+          pc += 2;
+          break;
+
+        // FX29
+        case 0x0029:
+          I = V[x] * 5;
+          pc += 2;
+          break;
+
+        // FX33
+        case 0x0033: 
+          memory[I] = V[x] / 100;
+          memory[I + 1] = (V[x] % 100) / 10;
+          memory[I + 2] = (V[x] % 10);
+          pc += 2;
+          break;
+        
+        // FX55
+        case 0x0055:
+          for (int i = 0; i <= x; i++) {
+            memory[I + i] = V[i];
+          }
+          pc += 2;
+          break;
+          
+        // FX65
+        case 0x0065:
+          for (int i = 0; i <= x; i++) {
+            V[i] = memory[I + i];
+          }
+          pc += 2;
+          break;
+          }
+      break;
     break;
   }
 }
