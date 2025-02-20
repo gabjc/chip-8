@@ -2,6 +2,9 @@
 #include   // OpenGL graphics and input
 #include "chip8.h" // Your cpu core implementation
 
+#include <stdio.h>
+#include <errno.h>
+#include <unistd.h>
 
 int main(int argc, char **argv) 
 {
@@ -11,11 +14,20 @@ int main(int argc, char **argv)
   
    // Initialize the Chip8 system and load the game into the memory  
   initialize();
-  loadGame("pong");
- 
+  
+  int error = loadGame("pong");
+  if (error) {
+    if (error == -1) {
+      perror("FAILED fread()");
+    }
+    else {
+      perror("Error loading rom/game");
+    }
+    return 1;
+  }
+
    // Emulation loop
-   for(;;)
-   {
+  for(;;) {
     // Emulate one cycle
     emulateCycle();
  
