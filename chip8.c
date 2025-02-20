@@ -3,6 +3,8 @@
 #include <time.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <sys/stat.h>
+#include <errno.h>
 
 
 void initialize(void) {
@@ -27,14 +29,26 @@ void initialize(void) {
     sound_timer = 0;
   }
 
-void loadGame(char game[]) {
+void loadGame(char* game) {
   // Have to use fopen in binary mode to fill the memory location at 0x200 == 512
   FILE *file = fopen(game, "rb");
 
-  for(int i = 0; i < bufferSize; ++i) {
-    memory[i + 512] = buffer[i];
+  if (file == NULL) {
+    return errno;
   }
 
+  struct stat st;
+  stat(game, &st);
+  size_t fsize = st.st_size;
+
+  size_t bytes_read = fread(memory + 0x200, 1, sizeof(memory) - 0x200, file);
+
+  fclose(file);
+
+  if (bytes_read != fsize) {
+    return -1;
+  }
+  return 0;
 }
   
 void emulateCycle() {
